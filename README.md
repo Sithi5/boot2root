@@ -5,5 +5,3 @@ in computer science in several fields.
 ![hacking pic](./resources/fkthesystem.pbg)
 
 # Resources
-#### elf file
-* [elf.h](https://code.woboq.org/linux/include/elf.h.html)
