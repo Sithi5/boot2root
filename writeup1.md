@@ -1,6 +1,6 @@
 # WRITEUP1
 
-Après installation et lancement de la VM, on nous demande un mot de passe et l'adresse ip de la machine n'est pas indiqué. 
+Après installation et lancement de la VM, on nous demande un mot de passe et l'adresse ip de la machine n'est pas indiqué.
 On cherche a scanner un port ouvert part notre vm, pour cela, on configure le réseau de notre vm (sur VM box) en accès par pont.
 On cherche à trouver une potentiel adresse ip créé par la VM  :
 
@@ -37,6 +37,48 @@ Interface : 192.168.1.26 --- 0x8
 On peut également trouver l'adrese ip directement dans les configs du routeur.
 
 On cherche maintenant a tester les différentes adresses de type `dynamique` avec la commande ping.
-Plusieurs adresses répondes, on peut les essayer à l'aide d'un navigateur.
-L'adresse `192.168.1.22` nous affiche une page avec ecrit `HACK ME`. Après différents tests et quelques recherche on trouve différents moyen de découvrir des fails et d'autres pages accessibles.
+Plusieurs adresses répondes, on peut les essayer une part une avec `nmap` :
+
+```bash
+λ nmap 192.168.1.22 
+Nmap scan report for IP (IP)
+Host is up (0.0055s latency).
+Not shown: 987 filtered ports
+PORT    STATE SERVICE
+21/tcp  open  ftp
+22/tcp  open  ssh
+25/tcp  open  smtp
+80/tcp  open  http
+110/tcp open  pop3
+119/tcp open  nntp
+143/tcp open  imap
+443/tcp open  https
+465/tcp open  smtps
+563/tcp open  snews
+587/tcp open  submission
+993/tcp open  imaps
+995/tcp open  pop3s
+Nmap done: 1 IP address (1 host up) scanned in 4.71 seconds
+```
+
+L'adresse `192.168.1.22` dispose d'un site web qui nous affiche une page avec ecrit `HACK ME`. Après différents tests et quelques recherche on trouve différents moyen de découvrir des fails et d'autres pages accessibles.
 Nous avons utilisez le `web scanner` `Arachni` . Une alternative plus light pour Arachni est le package `dirb` pour linux.
+Grace a ces `web scanner` on identifie de nouvelles pages accessibles : `/forum`, `/phpmyadmin`, `/webmail`.
+Dans le post `Probleme login?` du forum, on peut voir des tentatives de connections avec différents nom d'user et ce qui ressemble a un mot de passe :
+
+```bash
+Oct 5 08:45:29 BornToSecHackMe sshd\[7547\]: Failed password for invalid user !q\\\]Ej?\*5K5cy\*AJ from 161.202.39.38 port 57764 ssh2  
+Oct 5 08:45:29 BornToSecHackMe sshd\[7547\]: Received disconnect from 161.202.39.38: 3: com.jcraft.jsch.JSchException: Auth fail \[preauth\]  
+Oct 5 08:46:01 BornToSecHackMe CRON\[7549\]: pam_unix(cron:session): session opened for user lmezard by (uid=1040)
+```
+
+On reussi a se logger avec le nom d'user `lmezard` et le mot de passe `!q\\\]Ej?\*5K5cy\*AJ` au forum. Sur le profil de l'utilisateur on obtien l'adresse email de l'user : `laurie@borntosec.net`. On essaye de se logger sur `http://192.168.1.22/webmail` avec l'addresse email et le précédent mot de passe. On se connecte.
+Un des emails de l'utilisateur nous donne un accès à la page `phpmyadmin` :  
+
+```
+Hey Laurie,
+
+You cant connect to the databases now. Use root/Fg-'kKXBj87E:aJ$
+
+Best regards.
+```
