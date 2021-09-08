@@ -12,10 +12,11 @@ nmap -p- 192.168.1.1 # Scan all 65535 ports
 ```
 # Resources
 ### Penetration testing
+###### Os
 * [Kali](https://www.kali.org/)
 * [Kali tools-listing](https://tools.kali.org/tools-listing)
 
-##### Web Scanners
+###### Web Scanners
 * [Web scanners lists](https://github.com/bkapsec/fuzzing#web-scanners)
 * [Install Arachni](https://www.linuxhelp.com/how-to-install-arachni-web-application-scanner-in-ubuntu-2)
 
