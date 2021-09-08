@@ -63,6 +63,34 @@ Nmap done: 1 IP address (1 host up) scanned in 4.71 seconds
 
 L'adresse `192.168.1.22` dispose d'un site web qui nous affiche une page avec ecrit `HACK ME`. Après différents tests et quelques recherche on trouve différents moyen de découvrir des fails et d'autres pages accessibles.
 Nous avons utilisez le `web scanner` `Arachni` . Une alternative plus light pour Arachni est le package `dirb` pour linux.
+
+
+Nous avons travailler avec l'os `Kali` sur `wsl` a partir de maintenant car celui-ci inclut la plupart des outils de `Pen Testing` dont nous aurons besoin par la suite .
+
+```bash
+└─$ dirb https://192.168.1.22/
+
+-----------------
+DIRB v2.22
+By The Dark Raver
+-----------------
+
+START_TIME: Wed Sep  8 13:21:51 2021
+URL_BASE: https://192.168.1.22/
+WORDLIST_FILES: /usr/share/dirb/wordlists/common.txt
+
+-----------------
+
+GENERATED WORDS: 4612
+
+---- Scanning URL: https://192.168.1.22/ ----
++ https://192.168.1.22/cgi-bin/ (CODE:403|SIZE:289)
+==> DIRECTORY: https://192.168.1.22/forum/
+==> DIRECTORY: https://192.168.1.22/phpmyadmin/
++ https://192.168.1.22/server-status (CODE:403|SIZE:294)
+==> DIRECTORY: https://192.168.1.22/webmail/
+```
+
 Grace a ces `web scanner` on identifie de nouvelles pages accessibles : `/forum`, `/phpmyadmin`, `/webmail`.
 Dans le post `Probleme login?` du forum, on peut voir des tentatives de connections avec différents nom d'user et ce qui ressemble a un mot de passe :
 
@@ -81,4 +109,27 @@ Hey Laurie,
 You cant connect to the databases now. Use root/Fg-'kKXBj87E:aJ$
 
 Best regards.
+```
+
+Maintenant que l'on a un accès root à la db SQL, on cherche a faire une exploit appeler `web shell`. Grâce a `dirb` on peut obtenir une liste des dossiers utilisé par le site:
+`
+```bash
+└─$ dirb https://192.168.1.22/forum/
+
+...
+
+==> DIRECTORY: https://192.168.1.22/forum/js/
+==> DIRECTORY: https://192.168.1.22/forum/lang/
+==> DIRECTORY: https://192.168.1.22/forum/modules/
+==> DIRECTORY: https://192.168.1.22/forum/templates_c/
+==> DIRECTORY: https://192.168.1.22/forum/themes/
+==> DIRECTORY: https://192.168.1.22/forum/update/
+
+└─$ dirb https://192.168.1.22/webmail/
+
+...
+
+==> DIRECTORY: https://192.168.1.22/webmail/plugins/
+==> DIRECTORY: https://192.168.1.22/webmail/src/
+==> DIRECTORY: https://192.168.1.22/webmail/themes/
 ```
