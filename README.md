@@ -29,3 +29,6 @@ nmap -p- 192.168.1.1 # Scan all 65535 ports
 
 ### SQL Injection
 * [Use SQL Injection to Run OS Commands & Get a Shell](https://null-byte.wonderhowto.com/how-to/use-sql-injection-run-os-commands-get-shell-0191405/)
+
+### Others
+* [Reset the Root Password](https://www.maketecheasier.com/reset-root-password-linux/)
