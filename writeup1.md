@@ -4,6 +4,9 @@ After installing and launching the VM, we are asked for a password and the machi
 We are looking to scan an open port from our vm, for that, we configure the network of our vm (on VM box) in bridge access.
 We are trying to find a potential ip address created by the VM:
 
+
+### LOOK AROUND
+
 ```bash
 λ arp -a
 
@@ -60,6 +63,8 @@ PORT    STATE SERVICE
 Nmap done: 1 IP address (1 host up) scanned in 4.71 seconds
 ```
 
+### WEB
+
 The address `192.168.1.22` has a website that shows us a page with` HACK ME` written in it. After various tests and some research we finded different ways to discover other accessible pages.
   
 We used `web scanners` `Arachni`, `dirb` and`nikto`, all present by default on the `kali` OS.
@@ -109,6 +114,8 @@ You cant connect to the databases now. Use root/Fg-'kKXBj87E:aJ$
 
 Best regards.
 ```
+
+### PHPMYADMIN ACCESS - root
 
 phpmyadmin user: `root`
 phpmyadmin password: `Fg-'kKXBj87E:aJ$`
@@ -198,7 +205,14 @@ lmezard@192.168.1.22's password:
 Permission denied, please try again.
 ```
 too bad, let's try again with the `ssh` port finded with nmap before, it's not working neither...
-Let's try with the `ftp` port 21 with an external software and `lmezard` credential. It's working !! Now we have access to a file `README` and `fun`. The readme file say that we have to resolve the puzzle to get the password for the user `laurie`.  First let's download the `fun` file on our computer and second let's get some info about it:
+Let's try with the `ftp` port 21 with an external software and `lmezard` credential. It's working !! 
+
+### FTP ACCESS - lmezard
+
+ftp user: `lmezard`
+ftp password: `G!@M6f4Eatau{sF"`
+
+Now we have access to a file `README` and `fun`. The readme file say that we have to resolve the puzzle to get the password for the user `laurie`.  First let's download the `fun` file on our computer and second let's get some info about it:
 
 ```bash
 └─$ file fun
@@ -272,14 +286,21 @@ Now SHA-256 it and submi
 ```
 
 Now we can try again to connect in ssh with user `laurie` and password `330b845f32185747e4f8ca15d40ca59796035c89ea809fb5d30f4da83ecf45a4` :
-
 ```bash
 └─$ ssh laurie@192.168.1.22
 ...
 laurie@192.168.1.22's password:
 laurie@BornToSecHackMe:~$ ls
 bomb  README
+```
 
+
+### SSH ACCESS - laurie
+
+ssh user: `laurie`
+ssh password: `330b845f32185747e4f8ca15d40ca59796035c89ea809fb5d30f4da83ecf45a4`
+
+```bash
 laurie@BornToSecHackMe:~$ cat README
 Diffuse this bomb!
 When you have all the password use it as "thor" user with ssh.
@@ -295,6 +316,7 @@ o
 NO SPACE IN THE PASSWORD (password is case sensitive).
 ```
 
+
 It seems that we must find passwords by diffusing the `bomb` file..
 We copy the `bomb` file to disassemble it with`ghidra` or `gdb`:
 
@@ -305,4 +327,20 @@ laurie@192.168.1.22's password:
 bomb                                                                                               100%   26KB   6.1MB/s   00:00    
 ```
 
-We realize that we have to solve different phases to diffuse the bomb.
+We realize that we have to solve different phases to diffuse the bomb
+
+#### Defuse the bomb
+
+The bomb take input before each phase.
+
+##### phase 1
+
+The input is compared with the string `Public speaking is very easy.`
+
+##### phase 2
+
+The input should be 6 numbers separeted by one space. those 6 numbers are as follow : `1 2 6 24 120 720`
+
+##### phase 3
+
+
