@@ -32,8 +32,74 @@ void initialize_bomb(void)
     return;
 }
 
-void phase_3(char *input)
+void phase_5(int input)
 
+{
+    // Input of 6 char
+
+    int len;
+    char compare_string[6];
+
+    len = strlen(input);
+    if (len != 6)
+    {
+        explode_bomb();
+    }
+
+    len = 0;
+    while (len < 6)
+    {
+        compare_string[len] = input[len] & 15;
+        len = len + 1;
+    }
+    len = strcmp(compare_string, "giants");
+    if (len != 0)
+    {
+        explode_bomb();
+    }
+    return;
+}
+
+int func4(int input)
+
+{
+    int first_number;
+    int second_number;
+
+    if (input < 2)
+    {
+        second_number = 1;
+    }
+    else
+    {
+        first_number = func4(input - 1);
+        second_number = func4(input - 2);
+        second_number = second_number + first_number;
+    }
+    return second_number;
+}
+
+void phase_4(char *input)
+{
+    int ret;
+    int input_number;
+
+    // input = 9
+
+    ret = sscanf(input, "%d", &input_number);
+    if ((ret != 1) || (input_number < 1))
+    {
+        explode_bomb();
+    }
+    ret = func4(input_number);
+    if (ret != 55)
+    {
+        explode_bomb();
+    }
+    return;
+}
+
+void phase_3(char *input)
 {
     int ret;
     char compare_char;
@@ -42,6 +108,10 @@ void phase_3(char *input)
     int second_number;
 
     // input = 1 b 214
+
+    // input = 2 b 755
+
+    // input = 7 b 524
 
     ret = sscanf(input, "%d %c %d", &first_number, &first_char, &second_number);
     if (ret < 3)
@@ -120,11 +190,11 @@ void phase_3(char *input)
 void read_six_numbers(char *input, int *param_2)
 
 {
-    int iVar1;
+    int ret;
 
-    iVar1 = sscanf(input, "%d %d %d %d %d %d", param_2, param_2 + 4, param_2 + 8, param_2 + 0xc,
-                   param_2 + 0x10, param_2 + 0x14);
-    if (iVar1 < 6)
+    ret = sscanf(input, "%d %d %d %d %d %d", param_2, param_2 + 4, param_2 + 8, param_2 + 0xc,
+                 param_2 + 0x10, param_2 + 0x14);
+    if (ret < 6)
     {
         explode_bomb();
     }
@@ -164,10 +234,10 @@ void phase_2(char *input)
 void phase_1(char *input)
 
 {
-    int iVar1;
+    int ret;
 
-    iVar1 = strcmp(input, "Public speaking is very easy.");
-    if (iVar1 != 0)
+    ret = strcmp(input, "Public speaking is very easy.");
+    if (ret != 0)
     {
         explode_bomb();
     }
@@ -198,17 +268,17 @@ void phase_1(char *input)
 void phase_defused(int ac, char **av)
 
 {
-    int iVar1;
+    int ret;
     int *local_58[4];
     char *local_54[80];
 
     if (ac == 6)
     {
-        iVar1 = sscanf(av + 0xf0, "%d %s", local_58, local_54);
-        if (iVar1 == 2)
+        ret = sscanf(av + 0xf0, "%d %s", local_58, local_54);
+        if (ret == 2)
         {
-            iVar1 = strcmp(local_54, "austinpowers");
-            if (iVar1 == 0)
+            ret = strcmp(local_54, "austinpowers");
+            if (ret == 0)
             {
                 printf("Curses, you\'ve found the secret phase!\n");
                 printf("But finding it and solving it are quite different...\n");
@@ -292,3 +362,35 @@ int main(int ac, char **av)
     // phase_defused(ac);
     return 0;
 }
+
+int strings_not_equal(char *str_1, char *str_2)
+
+{
+    char current_char;
+    int len_str_1;
+    int len_str_2;
+
+    len_str_1 = strlen(str_1);
+    len_str_2 = strlen(str_2);
+    if (len_str_1 == len_str_2)
+    {
+        current_char = *str_1;
+        while (current_char != '\0')
+        {
+            if (*str_1 != *str_2)
+            {
+                return 1;
+            }
+            str_1 = str_1 + 1;
+            str_2 = str_2 + 1;
+            current_char = *str_1;
+        }
+        return 0;
+    }
+    else
+    {
+        return 1;
+    }
+}
+
+string[(int)(input[i] & 15)]

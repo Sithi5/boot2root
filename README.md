@@ -9,6 +9,14 @@ in computer science in several fields.
 arp -a # Affiche les entrées concernant l'hôte spécifié.
 nmap -F 192.168.1.1 # Scan 100 most common ports (Fast)
 nmap -p- 192.168.1.1 # Scan all 65535 ports
+sed 's/\xc2\xa0/ /g' {file} # Remove m-bm- format from windows text file.
+```
+
+gdb commands :
+```bash
+disas {label}# disassemble the givent label/function
+b *{address}# Put a breakpoint at the given address
+commands {breakpoint number} # Allow to insert commands to execute at the given breakpoint.
 ```
 # Resources
 ### Penetration testing
