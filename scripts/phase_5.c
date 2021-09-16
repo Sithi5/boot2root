@@ -4,27 +4,31 @@
 #define ASCI_START_CHAR 'a'
 #define ASCI_END_CHAR 'z'
 
-void rot_decode(char *string, int rot)
+void charset(char *string, char *line)
 {
-    int len = strlen(string);
-
-    while (len-- > 0)
+    char set[16] = "isrveawhobpnutfg";
+    int j;
+    int i;
+    for (i = 0; i < 26; i++)
     {
-        string[len] = string[len] - rot;
-        if (string[len] < ASCI_START_CHAR)
-        {
-            string[len] = string[len] + ASCI_END_CHAR - ASCI_START_CHAR;
-        }
+        j = (int)string[i] & 15;
+        string[i] = set[j];
     }
 }
 
 int main(void)
 {
-    char input[7] = "giants\0";
-    char input2[7] = "giants\0";
+    char input[26] = "abcdefghijklmnopqrstuvwxyz\0";
+    char line[7] = "giants\0";
 
-    printf("input string = %s\n", input);
-    rot_decode(input, 17);
-    printf("rot 17 = %s\n", input);
+    charset(input, line);
+    printf("input = %s\n", input);
     return 0;
 }
+
+// g = 15 == o
+// i = 16 == p
+// a = 5  == e
+// n == 11 == k
+// t == 14 == m
+// s = 1   == q

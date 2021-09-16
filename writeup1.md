@@ -416,11 +416,17 @@ Breakpoint 3, 0x08048d7b in phase_5 ()
 (gdb) x/s $eax
 0xbffff710:      "ssssss"
 ```
-the corresponding alphabet : 
+After a bit of investigation, we find out that our input string is used as an index for another string `charset = isrveawhobpnutfg` with the operation:
 
-```bash
-    abcdefghijklmnopqrstuvwxyz
-    srveawhobpnutfgisrveawhobp
+```c
+charset[((int)str[i] & 15)]
 ```
-    
-So the corresponding input string is `hbsfev`.  
+
+This operation is getting an index for our charset from the input string, so we need to get the correct alphabetic index corresponding to the correct letter index in the charset.
+For example, the first letter of `giants` is a`g`, for which his index is `15` in the charset string, so our input should be the fiftheen's letter of the alphabet corresponding to `o`.
+
+
+So the corresponding input string is `opekmq`.
+
+##### phase 6
+
