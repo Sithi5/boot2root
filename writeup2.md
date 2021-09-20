@@ -1,9 +1,8 @@
 # WRITEUP2
 
-When we saw that the vm was booting in linux system, we search a way to modify the booting, but we don't have `GRUB`, the vm is working on syslinux.
+When we saw that the vm was booting in linux system, we are looking for a way to boot in recovery mode, we can access to the boot loader with the shift key at the launch of the vm but there is no `grub` to get to the recovery mode.. 
 
-After some research, we found a way to find boot users with a cfg file 
-[syslinux](https://wiki.syslinux.org/wiki/index.php?title=Config)
+After some research, we found a way to find a boot image with a cfg file [syslinux](https://wiki.syslinux.org/wiki/index.php?title=Config).
 
 We need to have a ssh user to search this cfg ile, so we can use the first user find in writeup1, `laurie` and the password `330b845f32185747e4f8ca15d40ca59796035c89ea809fb5d30f4da83ecf45a4` :
 
@@ -46,7 +45,7 @@ bomb  README
 /rofs/usr/share/update-manager/mirrors.cfg
 /rofs/usr/share/update-manager/removal_blacklist.cfg
 ```
-we find isolinux.cfg : 
+we find `isolinux.cfg` : 
 
 ```bash
 > cat /cdrom/isolinux/isolinux.cfg
@@ -65,9 +64,12 @@ label live
   append  file=/cdrom/preseed/custom.seed boot=casper initrd=/casper/initrd.gz quiet splash --
 ```
 
+Another way to find the kernel image name is to use the `tab` key when we are in the boot loader mode with `shift`.
+
 We can see that the default user is live, so we can use a tip found on stack overflow
 
 [booting into a kernel image](https://unix.stackexchange.com/questions/151969/booting-into-a-kernel-image)
+
 
 We found the way to launch the boot manager from syslinux, hold shift or alt when the vm is starting then we use `init=/bin/sh` to force the kernel to launch with live and execute the command:
 
