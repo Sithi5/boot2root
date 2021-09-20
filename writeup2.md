@@ -2,7 +2,8 @@
 
 When we saw that the vm was booting in linux system, we search a way to modify the booting, but we don't have `GRUB`, the vm is working on syslinux.
 
-After some research, we found a way to find boot users with a cfg file (`https://wiki.syslinux.org/wiki/index.php?title=Config`).
+After some research, we found a way to find boot users with a cfg file 
+[syslinux](https://wiki.syslinux.org/wiki/index.php?title=Config)
 
 ```bash
 > find / -type f -name *.cfg | grep -v denied > file
@@ -48,7 +49,8 @@ label live
 ```
 
 We can see that the default user is live, so we can use a tip found on stack overflow
-(`https://unix.stackexchange.com/questions/151969/booting-into-a-kernel-image`)
+
+[booting into a kernel image](https://unix.stackexchange.com/questions/151969/booting-into-a-kernel-image)
 
 We found the way to launch the boot manager from syslinux, hold shift or alt when the vm is starting then we use `init=/bin/sh` to force the kernel to launch with live and execute the command:
 

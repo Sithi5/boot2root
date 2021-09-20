@@ -99,12 +99,12 @@ GENERATED WORDS: 4612
 Thanks to these `web scanners` we identify new accessible pages:`/forum`, `/phpmyadmin`,`/webmail`. In the forum post `Login problem?`, We can see connection attempts with different usernames and what looks like a password:
 
 ```bash
-Oct 5 08:45:29 BornToSecHackMe sshd\[7547\]: Failed password for invalid user !q\\\]Ej?\*5K5cy\*AJ from 161.202.39.38 port 57764 ssh2
+Oct 5 08:45:29 BornToSecHackMe sshd\[7547\]: Failed password for invalid user !q\]Ej?\*5K5cy\*AJ from 161.202.39.38 port 57764 ssh2
 Oct 5 08:45:29 BornToSecHackMe sshd\[7547\]: Received disconnect from 161.202.39.38: 3: com.jcraft.jsch.JSchException: Auth fail \[preauth\]
 Oct 5 08:46:01 BornToSecHackMe CRON\[7549\]: pam_unix(cron:session): session opened for user lmezard by (uid=1040)
 ```
 
-We managed to log in with the username `lmezard` and the password `!q\\\]Ej?\*5K5cy\*AJ` to the forum. On the user's profile we can get the user's email address: `laurie@borntosec.net`. We try to log into `http://{IP_VM}/webmail` with the email address and the previous password. We connect successfully.
+We managed to log in with the username `lmezard` and the password `!q\]Ej?\*5K5cy\*AJ` to the forum. On the user's profile we can get the user's email address: `laurie@borntosec.net`. We try to log into `http://{IP_VM}/webmail` with the email address and the previous password. We connect successfully.
 One of the user's emails gives us access to the `phpmyadmin` page:
 
 ```
@@ -353,6 +353,7 @@ The input should be of the format `number`,  the function compare the return of 
 
 The input should be of 6 characters. This one is a little bit more tricky, our string is passing by a cipher and after is bein compared with the string `giants`.
 let's try to figure out what's happening to our string with `gdb`:
+
 ```bash
 (gdb) b *phase_5
 Breakpoint 2 at 0x8048d2c
@@ -429,4 +430,36 @@ For example, the first letter of `giants` is a`g`, for which his index is `15` i
 So the corresponding input string is `opekmq`.
 
 ##### phase 6
+
+
+After analysing the phase 6 we know that we need 6 inputs numbers. Our inputs numbers should be different from eachother and have a value under 7.
+
+
+
+```bash
+(gdb) b phase_6
+Breakpoint 1 at 0x8048da1
+(gdb) r
+....
+opekmq
+Good work!  On to the next...
+123456
+
+Breakpoint 1, 0x08048da1 in phase_6 ()
+
+(gdb) p (int)node1
+$5 = 253
+(gdb) p (int)node2
+$6 = 725
+(gdb) p (int)node3
+$7 = 301
+(gdb) p (int)node4
+$8 = 997
+(gdb) p (int)node5
+$9 = 212
+(gdb) p (int)node6
+$10 = 432
+```
+
+`int tab\_to\_sort\[6\] = {253, 725, 301, 997, 212, 432};``
 
