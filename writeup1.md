@@ -523,4 +523,18 @@ thor@BornToSecHackMe:~$ file turtle
 turtle: ASCII text
 ```
 
-After some research we found [https://docs.python.org/3/library/turtle.html](https://docs.python.org/3/library/turtle.html), it seems that there was an hint in the name.
+After some research we found [https://docs.python.org/3/library/turtle.html](https://docs.python.org/3/library/turtle.html), it seems that there was an hint in the name. `Turtle` is actually a python package that allow to draw with instructions lookings alike to the ones we can find in the file. By writing a small python script and renaming the instruction to the correct one for `Turtle`, we finally get a draw of `SLASH`. It is not working with `zaz` user, but maybe there is another hint at the end of turtle file : `digest`. Let's try to hash the password with different algorithms. 
+
+md5 hash : `646da671ca01bb5d84dbb5fb2238dc8e`
+
+### SSH ACCESS - zaz
+
+ssh user: `zaz`
+ssh password: `646da671ca01bb5d84dbb5fb2238dc8e`
+
+```bash
+zaz@BornToSecHackMe:~$ ls
+exploit_me  mail
+zaz@BornToSecHackMe:~$ file exploit_me
+exploit_me: setuid setgid ELF 32-bit LSB executable, Intel 80386, version 1 (SYSV), dynamically linked (uses shared libs), for GNU/Linux 2.6.24, BuildID[sha1]=0x2457e2f88d6a21c3893bc48cb8f2584bcd39917e, not stripped
+```
