@@ -515,3 +515,12 @@ README  turtle
 
 ssh user: `thor`
 ssh password: `Publicspeakingisveryeasy.126241207201b2149opekmq426135`
+
+```bash
+thor@BornToSecHackMe:~$ cat README
+Finish this challenge and use the result as password for 'zaz' user.
+thor@BornToSecHackMe:~$ file turtle
+turtle: ASCII text
+```
+
+After some research we found [https://docs.python.org/3/library/turtle.html](https://docs.python.org/3/library/turtle.html), it seems that there was an hint in the name.
