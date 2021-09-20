@@ -427,14 +427,13 @@ This operation is getting an index for our charset from the input string, so we 
 For example, the first letter of `giants` is a`g`, for which his index is `15` in the charset string, so our input should be the fiftheen's letter of the alphabet corresponding to `o`.
 
 
-So the corresponding input string is `opekmq`.
+So the corresponding input string is `opekmq`. Note here that we used alphabetic character but there is a lot of others possibility in ascii tab !
 
 ##### phase 6
 
 
 After analysing the phase 6 we know that we need 6 inputs numbers. Our inputs numbers should be different from eachother and have a value under 7.
-
-
+With GDB we can find an int tab whose taking pre-defined value from `node1, node2, ..., node6` and we can get those value with gdb:
 
 ```bash
 (gdb) b phase_6
@@ -461,5 +460,58 @@ $9 = 212
 $10 = 432
 ```
 
-`int tab\_to\_sort\[6\] = {253, 725, 301, 997, 212, 432};``
+So we have the following tab : 
+```c 
+int tab_to_sort[6] = {253, 725, 301, 997, 212, 432};
+``` 
+And the functions seems to sort this tab from our input and put the sorted value in a new tab. This new tab is checked at the end of the function:
+```c
+int sorted_tab[6] = sort(tab_to_sort);
+i = 0;
+while (i < 5)
+{
+    if (sorted_tab[i] < sorted_tab[i + 1])
+    {
+        explode_bomb();
+    }
+    i = i + 1;
+}
+```
+We know that the resulting tab need to be sorted by ascending order so before investigating further the sorting process we can try to "select" the correct numbers order with our input in both ways (ascending/descending) : `5 1 3 6 2 4` or `4 2 6 3 1 5`. We know from the clue that the first number should start by 4 so let's try by descending order first. It's working !
 
+```bash
+└─$ cat -e bomb_response.txt
+Public speaking is very easy.$
+1 2 6 24 120 720$
+1 b 214$
+9$
+opekmq$
+4 2 6 3 1 5$
+
+┌──(sithis㉿MAGA-PC)-[/mnt/c/Users/MaSit/OneDrive/Bureau/42/hack/boot2root/scripts]
+└─$ ./bomb < bomb_response.txt
+Welcome this is my little bomb !!!! You have 6 stages with
+only one life good luck !! Have a nice day!
+Phase 1 defused. How about the next one?
+That's number 2.  Keep going!
+Halfway there!
+So you got that one.  Try this one.
+Good work!  On to the next...
+Congratulations! You've defused the bomb!
+```
+
+Now we have the password for the user `thor` : `Publicspeakingisveryeasy.126241207201b2149opekmq426315`
+Unfortunately this isn't working and after investigation, there is an error in the subject as we can see 
+[here](https://app.slack.com/client/T039P7U66/C7NF60E0Z/thread/C7NF60E0Z-1607701664.278400), The real answer is `Publicspeakingisveryeasy.126241207201b2149opekmq426135`
+
+```bash
+laurie@BornToSecHackMe:~$ su thor
+Password:
+thor@BornToSecHackMe:~$ ls
+README  turtle
+```
+
+### SSH ACCESS - thor
+
+ssh user: `thor`
+ssh password: `Publicspeakingisveryeasy.126241207201b2149opekmq426135`

@@ -38,5 +38,9 @@ commands {breakpoint number} # Allow to insert commands to execute at the given 
 ### SQL Injection
 * [Use SQL Injection to Run OS Commands & Get a Shell](https://null-byte.wonderhowto.com/how-to/use-sql-injection-run-os-commands-get-shell-0191405/)
 
+### Dirty Cow
+* [https://en.wikipedia.org/wiki/Dirty_COW](https://en.wikipedia.org/wiki/Dirty_COW)
+* [https://dirtycow.ninja/](https://dirtycow.ninja/)
+
 ### Others
 * [Reset the Root Password](https://www.maketecheasier.com/reset-root-password-linux/)
