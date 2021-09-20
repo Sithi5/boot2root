@@ -49,6 +49,8 @@ bomb  README
 we find isolinux.cfg : 
 
 ```bash
+> cat /cdrom/isolinux/isolinux.cfg
+
 default live
 prompt 0
 timeout 0

