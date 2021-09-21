@@ -1,6 +1,5 @@
 .ztr*
 .vscode
-
 a.out
-
 venv
+squashfs-root

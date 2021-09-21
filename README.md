@@ -48,3 +48,6 @@ commands {breakpoint number} # Allow to insert commands to execute at the given 
 ### BUFFER OVERFLOW
 * [bof5](https://0xrick.github.io/binary-exploitation/bof5/)
 * [shell-storm](http://shell-storm.org/shellcode/)
+
+### ISO
+* [SquashFS](https://en.wikipedia.org/wiki/SquashFS)
