@@ -607,9 +607,9 @@ Stack level 0, frame at 0xbffff760:
 0xbffff730:     0xffffffff      0xb7e5edc6
 
 ```
-> 0xbffff75c => EIP
-> 0xbffff6d0 => Buffer beginning
-> 0xbffff75c - 0xbffff6d0 = 140
+> EIP => 0xbffff75c
+> Buffer beginning =>0xbffff6d0
+> EIP - Buffer beginning = 140
 
 ```bash
 (gdb) p system
